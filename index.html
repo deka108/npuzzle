@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>N-puzzle Solver</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" rel="stylesheet" />
+        <link href="style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container" id='app'>
+            <h1>N-puzzle Solver</h1>
+            <div class="row">
+                <div class="one-half column">
+                    <n-puzzle :rows="rows" :sqrt-n="sqrtN"></n-puzzle>
+                </div>
+                <div class="one-half column">
+
+                </div>
+            </div>
+        </div>
+
+        <script type="text/x-template" id="n-puzzle-template">
+            <div>
+                <div class="box-row" v-for="(row, r) in rows"  >
+                    <n-puzzle-cell v-for="(val, c) in row" 
+                        :idx="r * sqrtN + c" :value="val" :key="val"></n-puzzle-cell>
+                </div>
+            </div>
+        </script>
+        
+        <script type="text/x-template" id="n-puzzle-cell-template">
+            <div class="cell" 
+                @click="move()"
+                :class="classes">
+                {{ value ? value : '&nbsp;' }}
+            </div>
+        </script>
+
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+        crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.1.0/anime.min.js" integrity="sha256-98Q574VkbV+PkxXCKSgL6jVq9mrVbS7uCdA+vt0sLS8=" crossorigin="anonymous"></script>
+        <script src="npuzzle.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>
