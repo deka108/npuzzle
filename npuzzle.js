@@ -146,6 +146,15 @@ PuzzleState.prototype.expand = function() {
     }
 }
 
+PuzzleState.prototype.isGoal = function(){
+    for (let i=0; i< this.N * this.N; i++){
+        if (i !== this.goalIndex[this.config[i]]){
+            return false;
+        }
+    }
+    return true;
+}
+
 PuzzleState.prototype.resetState = function() {
     this.parent = null;
     this.action = "Initial";
@@ -163,27 +172,29 @@ MinHeap.prototype.peek = function () {
 }
 
 MinHeap.prototype.siftUp = function(startIdx, idx){
-    let item = this.items[idx];
-    let parentIdx, parent;
+    let curItem = this.items[idx];
+    let parentIdx, parentItem;
 
+    // find the correct index for the new element
     while (idx > startIdx){
-        parentIdx = (idx - 1) >> 1; // divide by two
-        parent = this.items[parentIdx];
+        parentIdx = (idx - 1) >> 1; // divide by two to get the parent
+        parentItem = this.items[parentIdx];
 
         // already in correct position if it's larger or equal to its parent
-        if (this.compare(item, parent) >= 0){
+        if (this.compare(curItem, parentItem) >= 0){
             break;
         }
         
         // smaller than parent, swap with parent
-        this.items[idx] = parent;
+        this.items[idx] = parentItem;
         idx = parentIdx; // move index up
     }
 
-    this.items[idx] = item; // assign item at the correct idx
+    this.items[idx] = curItem; // assign item at the correct idx
 }
 
 MinHeap.prototype.push = function(item){
+    // move the last index
     this.items.push(item);
     this.size++;
     // fix heap
@@ -192,7 +203,7 @@ MinHeap.prototype.push = function(item){
 
 MinHeap.prototype.siftDown = function(idx){
     let startIdx = idx, endIdx = this.items.length;
-    let item = this.items[idx];
+    let curItem = this.items[idx];
     let childIdx = 2 * idx + 1, rightIdx;
 
     // go find the proper index while fixing the heap
@@ -201,7 +212,7 @@ MinHeap.prototype.siftDown = function(idx){
         
         // check if right child is smaller
         if (rightIdx < endIdx && 
-            this.compare(this.items[childIdx], this.items[rightIdx]) <= 0){
+            this.compare(this.items[childIdx], this.items[rightIdx]) >= 0){
             childIdx = rightIdx;
         }
 
@@ -210,7 +221,7 @@ MinHeap.prototype.siftDown = function(idx){
         childIdx = 2 * idx + 1; // update child idx
     }
 
-    this.items[idx] = item;
+    this.items[idx] = curItem;
     this.siftUp(startIdx, idx);
 }
 
@@ -279,7 +290,7 @@ PuzzleSolver.prototype.aStar = function () {
         if (!explored.has(state.id)){
             explored.add(state.id);
 
-            if (this.goalTest(state)){
+            if (state.isGoal()){
                 solution = this.buildSolution(state, depth);
             }
 
@@ -298,14 +309,6 @@ PuzzleSolver.prototype.aStar = function () {
     return solution;
 }
 
-PuzzleSolver.prototype.goalTest = function(state){
-    for (let i=0; i<state.N * state.N; i++){
-        if (i !== state.goalIndex[state.config[i]]){
-            return false;
-        }
-    }
-    return true;
-}
 
 PuzzleSolver.prototype.buildSolution = function(state, depth){
     let lastState = state;
@@ -396,14 +399,16 @@ const getGoalIndex = (goalConfig) => {
 }
 
 const testNPuzzle = () => {
-    let parsedState = parseState("8,6,7,2,5,4,3,0,1");
+    // let parsedState = parseState("8,6,7,2,5,4,3,0,1");
     // let parsedState = parseState("1,8,2,0,4,3,7,6,5");
     // let parsedState = parseState("1,2,5,3,4,0,6,7,8");
+    let parsedState = parseState("1,2,3,0,8,5,4,7,6");
     
     const goalIndex = getGoalIndex([1, 2, 3, 4, 5, 6, 7, 8, 0]);
     const state = new PuzzleState(parsedState, goalIndex, null, "Initial", 0);
     const solver = new PuzzleSolver(state);
-    solver.solve();
+    let results = solver.solve();
+    console.log(results);
 }
 
 const testNPuzzleGen = () => {
